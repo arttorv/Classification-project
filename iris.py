@@ -10,9 +10,10 @@ from sklearn.metrics import accuracy_score
 
 def main():
     
+    C = 3
+    D = 4 
     alpha = 1
     X_train, X_test, t_train, t_test = separateData()
-
 
 
 
@@ -26,11 +27,11 @@ def separateData():
     X_train, X_test, t_train, t_test = train_test_split(iris.data, iris.target, test_size=0.5)
     return X_train, X_test, t_train, t_test
 
-def findMSE(): 
+def findMSE(x_loc, t_loc, W): 
 
+    
     mse = []
     grad_mse = []
-
 
     return mse, grad_mse
 
