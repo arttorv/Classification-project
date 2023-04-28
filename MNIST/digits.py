@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import random
-
+from sklearn.metrics import confusion_matrix
 
 # --------------------------------- #
 #            LOAD DATA 
@@ -26,6 +26,13 @@ def display_img(matrix):
     plt.imshow(matrix, cmap='inferno')
     plt.show()
 
+def find_error(conf_matrix, N, C):
+    error = 0
+    for i in range(len(conf_matrix)):
+        for j in range(C):
+            if (j != i):
+                error += conf_matrix[i][j]/N
+    return error
 
 # --------------------------------- #
 #        EUCLIDIAN FUNCTIONS
@@ -51,6 +58,10 @@ def nearest_neighbor(test_img, ref_images, ref_label):
     label = ref_label[np.argmin(label_vec)]
     return label, ref_images[np.argmin(label_vec)]
 
+def label_one(train_images, train_labels, test_image, test_label):
+    pred_label, pred_image = nearest_neighbor(test_image, train_images, train_labels)
+    return pred_label
+
 
 # --------------------------------- #
 #            CLUSTERING
@@ -66,7 +77,7 @@ def cluster():
 #          RUN FUNCTIONS
 # --------------------------------- #
 
-def LABEL_ONE_IMAGE():
+def RUN_LABEL_ONE_IMAGE():
     N_train = 2000
     N_test = 1000
     test_number = random.randint(0,N_test)
@@ -79,9 +90,27 @@ def LABEL_ONE_IMAGE():
     print(f'predicted: {pred_label}')
     display_img(test_image)
     display_img(pred_image)
-    return 
-    
 
+    
+def RUN_LABEL_MULTIPLE_IMAGES():
+    Number_of_tests = 100
+    N_train = 2000
+    N_test = 1000
+    
+    train_images = load_mnist(N_train, 'MNIST/train_images.bin')
+    train_labels = load_mnist_labels(N_train, 'MNIST/train_labels.bin')
+    test_images = load_mnist(N_test, 'MNIST/test_images.bin')
+    test_labels = load_mnist_labels(N_test, 'MNIST/test_labels.bin')
+    pred_list = []
+    test_list = []
+    for i in range(Number_of_tests):
+        test_number = random.randint(0,N_test)
+        pred_list.append(label_one(train_images, train_labels, test_images[test_number], test_labels[test_number]))
+        test_list.append(test_labels[test_number])
+    cm = confusion_matrix(test_list, pred_list)
+    error = find_error(cm, Number_of_tests, 10)
+    print(cm)
+    print(error)
 
 def RUN_EUCLIDIAN():
     # Example usage: Load 1000 images
@@ -96,4 +125,4 @@ def RUN_EUCLIDIAN():
     print(labels)
     display_img(image1)
 
-LABEL_ONE_IMAGE()
+RUN_LABEL_MULTIPLE_IMAGES()
