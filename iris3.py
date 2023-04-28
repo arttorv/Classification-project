@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn.metrics import confusion_matrix
 
 #The iris task
 
@@ -89,26 +90,46 @@ def predict(W,x):
     g = np.dot(x, W.T)
     return np.argmax(sigmoid(g), axis=1)
 
-def confusion_matrix(t_train):
-    
+def make_ref_t(t):
+    t_ref = np.zeros(len(t))
+    for i in range(len(t)):
+        t_ref[i] = np.argmax(t[i])
+    return t_ref
+
+
+def make_conf_matrix(t_ref, t_pred):
+    cm = confusion_matrix(t_ref, t_pred)
+    return cm
+
+def find_error(conf_matrix, N, C):
+    error = 0
+    for i in range(len(conf_matrix)):
+        for j in range(C):
+            if (j != i):
+                error += conf_matrix[i][j]/N
+    return error
+
 
 def main():
     N = 90
+    C = 3
     x, t = get_data()
     x_train = x[:N]
     t_train = t[:N]
     x_test = x[N:]
     t_test = t[N:]
-    W, mse = train(x_train,t_train,0.01,2000)
-    
+    t_ref = make_ref_t(t_test)
+    W, mse = train(x_train,t_train,0.04,10000)
     pred = predict(W,x_test)
-    print(pred)
-    print(len(pred))
+    conf_matrix = make_conf_matrix(t_ref, pred)
+    error = round(find_error(conf_matrix, 150-N, C)*100,2)
+    
+    print(x[0:50])
+    print(f'Error rate: {error} %')
 
 main()
 
 
 def plot_features(x, w):
-    x[]
     plt.stem(x,w)
     
