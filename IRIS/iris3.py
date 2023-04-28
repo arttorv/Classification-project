@@ -22,16 +22,15 @@ def arrange_order(x,t):
     return np.array(array_x), np.array(array_t)
 
 def get_x():
-    f = open('iris.data')
-    x = np.loadtxt(f,delimiter=',',usecols=(0,1,2,3))
+    f = open('IRIS/iris.data')
+    x = np.loadtxt(f,delimiter=',',usecols=(0, 1))
     f.close()
-    #[x^T 1]^T -> x
     x_new = np.ones([np.size(x,0),np.size(x,1)+1])
     x_new[:,:-1] = x
     return x_new
 
 def get_t():
-    f = open('iris.data')
+    f = open('IRIS/iris.data')
     t = np.loadtxt(f,delimiter=',', usecols=(4),dtype=str)
     f.close()
     t_updated = []
@@ -124,7 +123,8 @@ def main():
     conf_matrix = make_conf_matrix(t_ref, pred)
     error = round(find_error(conf_matrix, 150-N, C)*100,2)
     
-    print(x[0:50])
+    # print(x[0:50])
+    print(conf_matrix)
     print(f'Error rate: {error} %')
 
 main()

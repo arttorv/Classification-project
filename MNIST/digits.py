@@ -26,13 +26,10 @@ def display_img(matrix):
     plt.imshow(matrix, cmap='inferno')
     plt.show()
 
+
 # --------------------------------- #
 #        EUCLIDIAN FUNCTIONS
 # --------------------------------- #
-
-def euclidian(x, y):
-    distance = np.sqrt(np.sum((x - y) ** 2))
-    return distance
 
 def euclidian_matrix(x, y):
     distance = (x - y).T*(x - y)
@@ -68,19 +65,22 @@ def cluster():
 # --------------------------------- #
 #          RUN FUNCTIONS
 # --------------------------------- #
-def LABEL_ONE_IMAGE():
-    N = 2000
-    test_number = random.randint(0,N)
-    train_images = load_mnist(N, 'MNIST/train_images.bin')
-    train_labels = load_mnist_labels(N, 'MNIST/train_labels.bin')
-    test_image = load_mnist(N, 'MNIST/test_images.bin')[test_number]
-    test_label = load_mnist_labels(N, 'MNIST/test_labels.bin')[test_number]
-    pred_label, pred_image = nearest_neighbor(test_image, train_images, train_labels)
-    display_img(pred_image)
-    display_img(test_image)
-    print(test_label)
-    print(pred_label)
 
+def LABEL_ONE_IMAGE():
+    N_train = 2000
+    N_test = 1000
+    test_number = random.randint(0,N_test)
+    train_images = load_mnist(N_train, 'MNIST/train_images.bin')
+    train_labels = load_mnist_labels(N_train, 'MNIST/train_labels.bin')
+    test_image = load_mnist(N_test, 'MNIST/test_images.bin')[test_number]
+    test_label = load_mnist_labels(N_test, 'MNIST/test_labels.bin')[test_number]
+    pred_label, pred_image = nearest_neighbor(test_image, train_images, train_labels)
+    print(f'tested: {test_label}')
+    print(f'predicted: {pred_label}')
+    display_img(test_image)
+    display_img(pred_image)
+    return 
+    
 
 
 def RUN_EUCLIDIAN():
