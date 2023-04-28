@@ -97,3 +97,7 @@ def RUN_EUCLIDIAN():
     display_img(image1)
 
 LABEL_ONE_IMAGE()
+
+# my_list = [1, 2, 3, 1, 2, 3, 0] * 1000
+# indices = [[i for i, x in enumerate(my_list) if x == j][:5000] for j in range(10)]
+# print(indices)

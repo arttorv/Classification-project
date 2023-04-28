@@ -2,6 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import random
 from sklearn.metrics import confusion_matrix
+from sklearn.cluster import KMeans
+from statistics import mode, StatisticsError
+from collections import Counter
 
 # --------------------------------- #
 #            LOAD DATA 
@@ -34,6 +37,16 @@ def find_error(conf_matrix, N, C):
                 error += conf_matrix[i][j]/N
     return error
 
+def most_common(lst):
+    c = Counter(lst)
+    most_common = c.most_common()
+    if len(most_common) > 1 and most_common[0][1] == most_common[1][1]:
+        for item in lst:
+            if item == most_common[0][0] or item == most_common[1][0]:
+                return item
+    else:
+        return most_common[0][0]
+
 # --------------------------------- #
 #        EUCLIDIAN FUNCTIONS
 # --------------------------------- #
@@ -49,6 +62,7 @@ def true_distance(dist_matrix):
             sum += dist_matrix[i][j]
     return sum
 
+# RETURNS THE PREDICTED LABEL AND THE PICTURE THAT LOOKS MOST LIKE THE TEST
 def nearest_neighbor(test_img, ref_images, ref_label):
     label_vec = np.zeros(len(ref_label))
     for i in range(len(ref_images)):
@@ -56,8 +70,21 @@ def nearest_neighbor(test_img, ref_images, ref_label):
         dist = true_distance(dist_matrix)
         label_vec[i]= dist
     label = ref_label[np.argmin(label_vec)]
-    return label, ref_images[np.argmin(label_vec)]
+    return label, ref_images[np.argmin(label_vec)], label_vec
 
+
+def k_nearest_neighbor(test_img, ref_images, ref_label, k):
+    k_nearest = []
+    label, ref_images, dist_vec = nearest_neighbor(test_img, ref_images, ref_label)
+    for i in range(k):
+        min_index = np.argmin(dist_vec)
+        k_nearest.append(ref_label[min_index])
+        np.delete(dist_vec,min_index)
+    pred_label = most_common(k_nearest)
+    return pred_label
+        
+         
+# DENNE FUNSKJONEN ER LITT DUST MEN FUNKER
 def label_one(train_images, train_labels, test_image, test_label):
     pred_label, pred_image = nearest_neighbor(test_image, train_images, train_labels)
     return pred_label
@@ -67,17 +94,77 @@ def label_one(train_images, train_labels, test_image, test_label):
 #            CLUSTERING
 # --------------------------------- #
 
-def cluster():
-    mu = 0
-    for i in range():
-        a = 1
 
+def data_for_clustering(train_images, train_labels):
+    num_samples=int(len(train_labels)*0.9)
+    sorted_images_in_rows = (10,num_samples,784)
+    class_count=np.zeros(10)
+    for i in range(len(train_labels)):
+        temp_image = np.zeros(784)
+        for j in range(28):
+            for k in range(28):
+                temp_image[j*28+k](train_images[j][k])
+        
+        label=train_labels[i]
+        class_count[label]+=1
+
+        sorted_images_in_rows[label][class_count[label]]=temp_image
+    return sorted_images_in_rows
+        
+
+def cluster(class_images): #feature matrix x, target/label matrix y_t
+    kmeans = KMeans(n_clusters=64)#, random_state=0)
+    
+    # clustering 
+    
+    kmeans.fit(class_images)
+    
+    cluster_centers = kmeans.cluster_centers_
+    
+    #inertia = kmeans.inertia_
+    return cluster_centers
+
+
+def row_to_image(row):
+    local_image=np.zeros(28,28)
+    for i in range(28):
+        for j in range(28):
+            local_image[i][j]=row[i*28+j]
+    return local_image
+    
+       
+def new_clustered_dataset(sorted_images_in_rows):
+    train_images_clustered=np.zeros(0,28,28)
+    train_labels_clustered=[]
+    for i in range(10):
+        for row in sorted_images_in_rows[i]:
+            image_local=row_to_image(row)
+            train_images_clustered.append(image_local)
+            # train_images_clustered[i]=cluster(sorted_images_in_rows[i])
+        
+    
+
+def new_clustered_labels(sorted_images_in_rows):
+    train_labels_clustered_list = []
+    for i in range(10):
+        num_images_for_class = len(sorted_images_in_rows[i])
+        train_labels_clustered_list.append(np.full(num_images_for_class,i))
+    return train_labels_clustered_list
+    
+    
+# def plot_clusters(clusters):
+#     fig, ax = plt.subplots(2, 5, figsize=(8, 3))
+#     centers = centers.reshape(10, 8, 8)
+#     for i, axi in enumerate(ax.flat):
+#         axi.imshow(centers[i], cmap=plt.cm.binary)
+#         axi.set(xticks=[], yticks=[])
 
 # --------------------------------- #
 #          RUN FUNCTIONS
 # --------------------------------- #
 
-def RUN_LABEL_ONE_IMAGE():
+# NN
+def RUN_LABEL_ONE_NN():
     N_train = 2000
     N_test = 1000
     test_number = random.randint(0,N_test)
@@ -91,7 +178,21 @@ def RUN_LABEL_ONE_IMAGE():
     display_img(test_image)
     display_img(pred_image)
 
-    
+# KNN
+def RUN_LABEL_ONE_KNN():
+    k = 7
+    N_train = 2000
+    N_test = 100
+    test_number = random.randint(0,N_test)
+    train_images = load_mnist(N_train, 'MNIST/train_images.bin')
+    train_labels = load_mnist_labels(N_train, 'MNIST/train_labels.bin')
+    test_image = load_mnist(N_test, 'MNIST/test_images.bin')[test_number]
+    test_label = load_mnist_labels(N_test, 'MNIST/test_labels.bin')[test_number]
+    pred_label = k_nearest_neighbor(test_image,train_images,train_labels,k)
+    print(f'tested: {test_label}')
+    print(f'predicted: {pred_label}')
+
+# PRINTING CONFUSION MATRIX OG ERROR RATE USING NN   
 def RUN_LABEL_MULTIPLE_IMAGES():
     Number_of_tests = 100
     N_train = 2000
@@ -112,6 +213,7 @@ def RUN_LABEL_MULTIPLE_IMAGES():
     print(cm)
     print(error)
 
+# SIMPLE FIRST TEST OF THE FUNCTIONS (REMOVE THIS)
 def RUN_EUCLIDIAN():
     # Example usage: Load 1000 images
     N = 20
@@ -125,4 +227,24 @@ def RUN_EUCLIDIAN():
     print(labels)
     display_img(image1)
 
-RUN_LABEL_MULTIPLE_IMAGES()
+def RUN_CLUSTER_TEST():
+    N_train = 2000
+    N_test = 1000
+    # test_number = random.randint(0,N_test)
+    train_images = load_mnist(N_train, 'MNIST/train_images.bin')
+    train_labels = load_mnist_labels(N_train, 'MNIST/train_labels.bin')
+    # test_image = load_mnist(N_test, 'MNIST/test_images.bin')[test_number]
+    # test_label = load_mnist_labels(N_test, 'MNIST/test_labels.bin')[test_number]
+    # pred_label, pred_image = nearest_neighbor(test_image, train_images, train_labels)
+    # print(f'tested: {test_label}')
+    # print(f'predicted: {pred_label}')
+    # display_img(clustered_image)
+    clust_data = data_for_clustering(train_images, train_labels)
+    print(clust_data)
+    display_img(clust_data[0])
+    display_img(clust_data[1])
+    display_img(clust_data[2])
+    display_img(clust_data[64])
+    display_img(clust_data[65])
+
+RUN_CLUSTER_TEST()
