@@ -52,7 +52,8 @@ def nearest_neighbor(test_img, ref_images, ref_label):
         dist = true_distance(dist_matrix)
         label_vec[i]= dist
     label = ref_label[np.argmin(label_vec)]
-    return label, ref_images[np.argmin(label_vec)]
+    display_img(ref_images[np.argmin(label_vec)])
+    return label
 
 
 # --------------------------------- #
@@ -75,8 +76,8 @@ def LABEL_ONE_IMAGE():
     train_labels = load_mnist_labels(N, 'MNIST/train_labels.bin')
     test_image = load_mnist(N, 'MNIST/test_images.bin')[test_number]
     test_label = load_mnist_labels(N, 'MNIST/test_labels.bin')[test_number]
-    pred_label, pred_image = nearest_neighbor(test_image, train_images, train_labels)
-    display_img(pred_image)
+    pred_label = nearest_neighbor(test_image, train_images, train_labels)
+    
     display_img(test_image)
     print(test_label)
     print(pred_label)
