@@ -31,12 +31,15 @@ def true_distance(dist_matrix):
             sum += dist_matrix[i][j]
     return sum
 
-# Example usage: Load 1000 images
-images = load_mnist(9)
-labels = load_mnist_labels(9)
-image1 = images[3]
-image2 = images[4]
-dist_matrix = euclidian_matrix(image1,image2)
-true_distance =
-print(dist_matrix)
-print(labels)
+def RUN_EUCLIDIAN():
+    # Example usage: Load 1000 images
+    N = 12
+    images = load_mnist(N)
+    labels = load_mnist_labels(N)
+    image1 = images[2]
+    image2 = images[10]
+    dist_matrix = euclidian_matrix(image1,image2)
+    dist = true_distance(dist_matrix)
+    print(dist)
+    print(labels)
+
