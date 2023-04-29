@@ -73,7 +73,7 @@ def true_distance(dist_matrix):
 # RETURNS THE PREDICTED LABEL AND THE PICTURE THAT LOOKS MOST LIKE THE TEST
 def nearest_neighbor(test_img, ref_images, ref_label):
     label_vec = np.zeros(len(ref_label))
-    print('labelveclen',len(label_vec))
+    # print('labelveclen',len(label_vec))
     for i in range(len(ref_images)):
         dist_matrix = euclidian_matrix(test_img,ref_images[i])
         dist = true_distance(dist_matrix)
@@ -286,23 +286,23 @@ def RUN_CLUSTERING():
     
     # display_img(clustered_templates[128])
     
-def RUN_DISPLAY_CLUSTERED_IMAGE():
+def RUN_DISPLAY_CLUSTERED_SINGLE_IMAGE():
     N_train = 1000
     train_images = load_mnist(N_train, 'MNIST/train_images.bin')
     clustered_images = np.load('MNIST/clustered_templates.npy')
     display_img(train_images[56])
     display_img(clustered_images[345])
     
-def RUN_DISPLAY_CLUSTERED_IMAGES_MATRIX():
-    num_to_display = 7
+def RUN_DISPLAY_CLUSTERED_DIGIT(digit_to_display):
     # N_train = 1000
     # train_images = load_mnist(N_train, 'MNIST/train_images.bin')
     clustered_images = np.load('MNIST/clustered_templates.npy')
     fig, axs = plt.subplots(8, 8, sharex=True, sharey=True)
-    plt.axis('off') 
     for i in range(8): 
          for j in range(8): 
-            axs[i,j].imshow(clustered_images[64*num_to_display + i*8+j], cmap='inferno')
+            axs[i,j].imshow(clustered_images[64*digit_to_display + i*8+j], cmap='inferno')
+            axs[i,j].axis('off')
+    fig.set_size_inches(4,4)
     plt.show()
     
 def RUN_LABEL_ONE_NN_WITH_CLUSTERING():
@@ -390,6 +390,6 @@ get_new_clustered_labels(64)
 # RUN_DISPLAY_CLUSTERED_IMAGES_MATRIX()
 
 # RUN_LABEL_MULTIPLE_IMAGES_WITH_CLUSTERING()
-# RUN_DISPLAY_CLUSTERED_IMAGES_MATRIX()
+RUN_DISPLAY_CLUSTERED_DIGIT(6)
 
-RUN_LABEL_ONE_KNN()
+# RUN_LABEL_ONE_KNN()
