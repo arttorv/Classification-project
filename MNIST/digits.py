@@ -8,6 +8,9 @@ from collections import Counter
 from PIL import Image
 
 
+from scipy.spatial import distance
+
+
 # TASK 2: DIGITS
 
 # --------------------------------- #
@@ -223,8 +226,61 @@ def get_cluster_dataset(dataset, labels, n_clusters=64):
         train_data.extend(clusters)
 
     return (train_data, train_labels)
+
+def k_nearest_neighbours(data, data_labels, image, k_neighbours):
+    dist_and_label_list = []
+    for i in range (len(data)):
+        dist = distance.euclidean(data[i], image)
+        dist_and_label_list.append((dist, data_labels[i]))
+    dist_and_label_list = sorted(dist_and_label_list, key=lambda dist: dist[0])
+
+    labels = [ dist_and_label[1] for dist_and_label in dist_and_label_list[:k_neighbours] ]
+    return labels
+
+def classify_img(nearest):
+    nearest_number_counts = [0]*10
+    highest = 0
+    number = -1
+    for i in range(len(nearest)):
+        index = nearest[i]
+        nearest_number_counts[index] += 1
+    for i in range(len(nearest_number_counts)):
+        if nearest_number_counts[i] > highest:
+            number = i
+    return number
+
+###########################3    FUNNKERRR
+
+def RUN_classify():
+    test_predicted = []
+    N_train = 1000
+    N_test = 10
     
-# #############################
+    # train_images = load_mnist(N_train, 'MNIST/train_images.bin')
+    # train_labels = load_mnist_labels(N_train, 'MNIST/train_labels.bin')
+    
+    # train_cluster, train_labels = get_cluster_dataset(train_images.reshape(N_train,784), train_labels, 64)
+    # print(np.shape(train_cluster))
+    
+    train_cluster = np.load('MNIST/clustered_templates.npy')
+    train_labels = np.load('MNIST/clustered_labels.npy')
+
+    test_images = load_mnist(N_test, 'MNIST/test_images.bin')
+    test_labels = load_mnist_labels(N_test, 'MNIST/test_labels.bin')
+    test_images = test_images.reshape(N_test,784)
+    train_cluster = np.array(train_cluster).reshape(640,784)
+    
+    for i in range(N_test):
+        k_nearest = k_nearest_neighbours(train_cluster, train_labels, test_images[i], 1)
+        predicted_number = classify_img(k_nearest)
+        test_predicted.append(predicted_number)
+        
+        print('\npred', predicted_number)
+        print('fasit', test_labels[i])
+        
+RUN_classify()
+    
+# #########################################
 #------------------------------    
 
 # def plot_clusters(clusters):
@@ -290,11 +346,7 @@ def RUN_LABEL_MULTIPLE_IMAGES():
     train_labels = load_mnist_labels(N_train, 'MNIST/train_labels.bin')
     test_images = load_mnist(N_test, 'MNIST/test_images.bin')
     test_labels = load_mnist_labels(N_test, 'MNIST/test_labels.bin')
-
     
-    train_images, train_labels = get_cluster_dataset(train_images.reshape(N_train,784), train_labels, 64)
-    print(np.shape(train_images))
-    train_images = np.array(train_images).reshape(640,28,28)
     # print(train_images)
     # train_images = np.load('MNIST/clustered_templates.npy')
     # train_images = int_cluster(train_images)
@@ -310,6 +362,9 @@ def RUN_LABEL_MULTIPLE_IMAGES():
     error = find_error(cm, Number_of_tests, 10)
     print(cm)
     print(error)
+    
+    
+    
 
 # SIMPLE FIRST TEST OF THE FUNCTIONS (REMOVE THIS)
 def RUN_EUCLIDIAN():
