@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix
 
-#The iris task
+# TASK 1: IRIS
 
 classmap = {
     'Iris-setosa': np.array([1, 0, 0]),
@@ -11,9 +11,6 @@ classmap = {
 }
 
 def arrange_order(x,t):
-    '''
-    Sets up the array such that the first 90 rows are 30*3 sets of different flowers
-    '''
     array_x, array_t = [], []
     for i in range(50):
         for j in range(3):
@@ -38,34 +35,28 @@ def get_t():
         t_updated.append(classmap.get(str(line)))
     return t_updated
 
+# Returns data from the dataset in mixed or correct order
 def get_data(edit_order=True):
-    '''
-    Returns data from the dataset in mixed or correct order
-    '''
     x = get_x()
     t = get_t()
     if edit_order:
         x,t = arrange_order(x,t)
     return x,t
 
+#  Calculates the Mean-Squared Error between arrays A and B
 def MSE(A,B):
-    '''
-    Calculates the Mean-Squared Error between arrays A and B
-    '''
     mse = (np.square(A - B)).mean(axis=1)
     return mse
 
+# Calculates the gradient of the Mean-Squared Error
 def gradient_MSE(x, g, t):
-    '''
-    Calculates the gradient of the Mean-Squared Error
-    '''
     mse_gradient = g - t
     g_gradient = g * (1-g)
     zk_gradient = x.T
     return np.dot(zk_gradient, mse_gradient*g_gradient)
 
+# returns the sigmoid, an acceptable approximation of the heaviside function
 def sigmoid(x):
-    '''returns the sigmoid, an acceptable approximation of the heaviside function'''
     return (1/(1+np.exp(-x)))
   
 def train(x, t, alpha, iterations):
@@ -95,7 +86,6 @@ def make_ref_t(t):
         t_ref[i] = np.argmax(t[i])
     return t_ref
 
-
 def make_conf_matrix(t_ref, t_pred):
     cm = confusion_matrix(t_ref, t_pred)
     return cm
@@ -107,7 +97,6 @@ def find_error(conf_matrix, N, C):
             if (j != i):
                 error += conf_matrix[i][j]/N
     return error
-
 
 def main():
     N = 90

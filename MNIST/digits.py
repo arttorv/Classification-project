@@ -7,6 +7,8 @@ from statistics import mode, StatisticsError
 from collections import Counter
 from PIL import Image
 
+# TASK 2: DIGITS
+
 # --------------------------------- #
 #            LOAD DATA 
 # --------------------------------- #
@@ -25,6 +27,10 @@ def load_mnist_labels(num_labels, filename):
         buf = f.read(num_labels)
         labels = np.frombuffer(buf, dtype=np.uint8)
     return labels
+
+# --------------------------------- #
+#            LOAD DATA 
+# --------------------------------- #
 
 def display_img(matrix):
     plt.imshow(matrix, cmap='inferno')
@@ -87,12 +93,12 @@ def k_nearest_neighbor(test_img, ref_images, ref_label, k):
          
 # DENNE FUNSKJONEN ER LITT DUST MEN FUNKER
 def label_one(train_images, train_labels, test_image, test_label):
-    pred_label, pred_image = nearest_neighbor(test_image, train_images, train_labels)
+    pred_label, pred_image, dummy_vec = nearest_neighbor(test_image, train_images, train_labels)
     return pred_label
 
 
 # --------------------------------- #
-#            CLUSTERING
+#       CLUSTERING FUNCTIONS
 # --------------------------------- #
 
 
@@ -191,7 +197,7 @@ def RUN_LABEL_ONE_NN():
     train_labels = load_mnist_labels(N_train, 'MNIST/train_labels.bin')
     test_image = load_mnist(N_test, 'MNIST/test_images.bin')[test_number]
     test_label = load_mnist_labels(N_test, 'MNIST/test_labels.bin')[test_number]
-    pred_label, pred_image = nearest_neighbor(test_image, train_images, train_labels)
+    pred_label, pred_image, dummy_vec = nearest_neighbor(test_image, train_images, train_labels)
     print(f'tested: {test_label}')
     print(f'predicted: {pred_label}')
     display_img(test_image)
@@ -211,9 +217,9 @@ def RUN_LABEL_ONE_KNN():
     print(f'tested: {test_label}')
     print(f'predicted: {pred_label}')
 
-# PRINTING CONFUSION MATRIX OG ERROR RATE USING NN   
+# PRINTING CONFUSION MATRIX OG ERROR RATE USING NN WITH RANDOM TESTING 
 def RUN_LABEL_MULTIPLE_IMAGES():
-    Number_of_tests = 100
+    Number_of_tests = 50
     N_train = 2000
     N_test = 1000
     
@@ -234,7 +240,6 @@ def RUN_LABEL_MULTIPLE_IMAGES():
 
 # SIMPLE FIRST TEST OF THE FUNCTIONS (REMOVE THIS)
 def RUN_EUCLIDIAN():
-    # Example usage: Load 1000 images
     N = 20
     images = load_mnist(N)
     labels = load_mnist_labels(N)
@@ -269,6 +274,45 @@ def RUN_CLUSTER_TEST():
     display_img(clust_data[64])
     display_img(clust_data[65])
     
-# import_custom_BMP('Test9tall.bmp')
+def RUN_PLOT_CONF_MATRIX():
+    Number_of_tests = 200
+    N_train = 4000
+    N_test = 1000
+    train_images = load_mnist(N_train, 'MNIST/train_images.bin')
+    train_labels = load_mnist_labels(N_train, 'MNIST/train_labels.bin')
+    test_images = load_mnist(N_test, 'MNIST/test_images.bin')
+    test_labels = load_mnist_labels(N_test, 'MNIST/test_labels.bin')
+    pred_list = []
+    test_list = []
+    for i in range(Number_of_tests):
+        test_number = i
+        pred_list.append(label_one(train_images, train_labels, test_images[test_number], test_labels[test_number]))
+        test_list.append(test_labels[test_number])
+    cm = confusion_matrix(test_list, pred_list)
+    np.save('MNIST/conf_matrix.npy', cm)
+    error = find_error(cm, Number_of_tests, 10)
 
-RUN_CLUSTER_TEST()
+    # create heatmap
+    plt.imshow(cm, cmap=plt.cm.Blues)
+    plt.title(f'Confusion Matrix with error rate: {round(error,2)*100}%. Number of training data: {N_train}')
+    plt.colorbar()
+    tick_marks = np.arange(10)
+    plt.xticks(tick_marks, ['Digit 0', 'Digit 1', 'Digit 2', 'Digit 3', 'Digit 4','Digit 5','Digit 6','Digit 7','Digit 8','Digit 9'], rotation=45)
+    plt.yticks(tick_marks, ['Digit 0', 'Digit 1', 'Digit 2', 'Digit 3', 'Digit 4','Digit 5','Digit 6','Digit 7','Digit 8','Digit 9'])
+
+    # add text annotations
+    thresh = cm.max() / 2.
+    for i in range(cm.shape[0]):
+        for j in range(cm.shape[1]):
+            plt.text(j, i, cm[i, j],
+                    horizontalalignment="center",
+                    color="white" if cm[i, j] > thresh else "black")
+
+    plt.tight_layout()
+    plt.ylabel('True label')
+    plt.xlabel('Predicted label')
+    plt.show()
+
+# import_custom_BMP('Test9tall.bmp')
+RUN_PLOT_CONF_MATRIX()
+
