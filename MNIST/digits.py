@@ -7,6 +7,7 @@ from statistics import mode, StatisticsError
 from collections import Counter
 from PIL import Image
 
+
 # TASK 2: DIGITS
 
 # --------------------------------- #
@@ -72,6 +73,7 @@ def true_distance(dist_matrix):
 # RETURNS THE PREDICTED LABEL AND THE PICTURE THAT LOOKS MOST LIKE THE TEST
 def nearest_neighbor(test_img, ref_images, ref_label):
     label_vec = np.zeros(len(ref_label))
+    print('labelveclen',len(label_vec))
     for i in range(len(ref_images)):
         dist_matrix = euclidian_matrix(test_img,ref_images[i])
         dist = true_distance(dist_matrix)
@@ -162,14 +164,23 @@ def get_new_clustered_images(sorted_images_in_rows, N_cluster):
     return train_images_clustered
         
 
-def get_new_clustered_labels(sorted_images_in_rows):
+# def get_labels_BEFORE_CLUSTERING(sorted_images_in_rows):  
+#     train_labels_clustered_list = []
+#     for i in range(10):
+#         num_images_for_class = len(sorted_images_in_rows[i])
+#         train_labels_clustered_list.append(np.full(num_images_for_class,i))
+#         np.array(train_labels_clustered_list)
+#     return train_labels_clustered_list
+
+def get_new_clustered_labels(N_cluster):
     train_labels_clustered_list = []
     for i in range(10):
-        num_images_for_class = len(sorted_images_in_rows[i])
-        train_labels_clustered_list.append(np.full(num_images_for_class,i))
-        np.array(train_labels_clustered_list)
+        for j in range(N_cluster):
+            train_labels_clustered_list.append(i)
+    train_labels_clustered_list=np.array(train_labels_clustered_list)
+    print(train_labels_clustered_list)
+    np.save('MNIST/clustered_labels.npy', train_labels_clustered_list)
     return train_labels_clustered_list
-    
     
     
 # def plot_clusters(clusters):
@@ -213,8 +224,10 @@ def RUN_LABEL_ONE_KNN():
     N_train = 2000
     N_test = 100
     test_number = random.randint(0,N_test)
-    train_images = load_mnist(N_train, 'MNIST/train_images.bin')
-    train_labels = load_mnist_labels(N_train, 'MNIST/train_labels.bin')
+    # train_images = load_mnist(N_train, 'MNIST/train_images.bin')
+    # train_labels = load_mnist_labels(N_train, 'MNIST/train_labels.bin')
+    train_images = np.load('MNIST/clustered_templates.npy')
+    train_labels = np.load('MNIST/clustered_labels.npy')
     test_image = load_mnist(N_test, 'MNIST/test_images.bin')[test_number]
     test_label = load_mnist_labels(N_test, 'MNIST/test_labels.bin')[test_number]
     pred_label = k_nearest_neighbor(test_image,train_images,train_labels,k)
@@ -257,31 +270,50 @@ def RUN_EUCLIDIAN():
 
 def RUN_CLUSTERING():
     N_train = 60000
-    N_cluster = 64
+    N_clusters = 64
     train_images = load_mnist(N_train, 'MNIST/train_images.bin')
     train_labels = load_mnist_labels(N_train, 'MNIST/train_labels.bin')
     # display_img(clustered_image)
     clust_data = data_for_clustering(train_images, train_labels)
-    clustered_templates = get_new_clustered_images(clust_data, N_cluster)
-    clustered_label = get_new_clustered_labels(clust_data)
+    clustered_templates = get_new_clustered_images(clust_data, N_clusters)
+    clustered_label = get_new_clustered_labels(N_clusters)
     
-    np.save('clustered_templates.npy', clustered_templates)
-    np.save('clustered_labels.npy', clustered_label)
+    np.save('MNIST/clustered_templates.npy', clustered_templates)
+    np.save('MNIST/clustered_labels.npy', clustered_label)
     
-    loaded = np.load('clustered_templates.npy')
+    loaded = np.load('MNIST/clustered_templates.npy')
     display_img(loaded[128])
     
     # display_img(clustered_templates[128])
     
+def RUN_DISPLAY_CLUSTERED_IMAGE():
+    N_train = 1000
+    train_images = load_mnist(N_train, 'MNIST/train_images.bin')
+    clustered_images = np.load('MNIST/clustered_templates.npy')
+    display_img(train_images[56])
+    display_img(clustered_images[345])
+    
+def RUN_DISPLAY_CLUSTERED_IMAGES_MATRIX():
+    num_to_display = 7
+    # N_train = 1000
+    # train_images = load_mnist(N_train, 'MNIST/train_images.bin')
+    clustered_images = np.load('MNIST/clustered_templates.npy')
+    fig, axs = plt.subplots(8, 8, sharex=True, sharey=True)
+    plt.axis('off') 
+    for i in range(8): 
+         for j in range(8): 
+            axs[i,j].imshow(clustered_images[64*num_to_display + i*8+j], cmap='inferno')
+    plt.show()
     
 def RUN_LABEL_ONE_NN_WITH_CLUSTERING():
     N_test = 1000
-    train_images = np.load('MINST/clustered_templates.npy')
-    train_labels = np.load('MINST/clustered_labels.npy')
+    train_images = np.load('MNIST/clustered_templates.npy')
+    train_labels = np.load('MNIST/clustered_labels.npy')
+    print(train_labels)
     N_train = len(train_labels)
     test_number = random.randint(0,N_test)
-    train_images = load_mnist(N_train, 'MNIST/train_images.bin')
-    train_labels = load_mnist_labels(N_train, 'MNIST/train_labels.bin')
+    # train_images = load_mnist(N_train, 'MNIST/train_images.bin')
+    # train_labels = load_mnist_labels(N_train, 'MNIST/train_labels.bin')
     test_image = load_mnist(N_test, 'MNIST/test_images.bin')[test_number]
     test_label = load_mnist_labels(N_test, 'MNIST/test_labels.bin')[test_number]
     pred_label, pred_image, dummy_vec = nearest_neighbor(test_image, train_images, train_labels)
@@ -289,6 +321,27 @@ def RUN_LABEL_ONE_NN_WITH_CLUSTERING():
     print(f'predicted: {pred_label}')
     display_img(test_image)
     display_img(pred_image)
+
+def RUN_LABEL_MULTIPLE_IMAGES_WITH_CLUSTERING():
+    Number_of_tests = 50
+    # N_train = 2000
+    N_test = 1000
+    
+    train_images = np.load('MNIST/clustered_templates.npy')
+    train_labels = np.load('MNIST/clustered_labels.npy')
+    print('trainlabels',len(train_labels))
+    test_images = load_mnist(N_test, 'MNIST/test_images.bin')
+    test_labels = load_mnist_labels(N_test, 'MNIST/test_labels.bin')
+    pred_list = []
+    test_list = []
+    for i in range(Number_of_tests):
+        test_number = random.randint(0,N_test)
+        pred_list.append(label_one(train_images, train_labels, test_images[test_number], test_labels[test_number]))
+        test_list.append(test_labels[test_number])
+    cm = confusion_matrix(test_list, pred_list)
+    error = find_error(cm, Number_of_tests, 10)
+    print(cm)
+    print(error)
     
 def RUN_PLOT_CONF_MATRIX():
     Number_of_tests = 200
@@ -331,5 +384,12 @@ def RUN_PLOT_CONF_MATRIX():
 
 # import_custom_BMP('Test9tall.bmp')
 # RUN_PLOT_CONF_MATRIX()
+get_new_clustered_labels(64)
 
-RUN_LABEL_ONE_NN_WITH_CLUSTERING()
+# RUN_LABEL_ONE_NN_WITH_CLUSTERING()
+# RUN_DISPLAY_CLUSTERED_IMAGES_MATRIX()
+
+# RUN_LABEL_MULTIPLE_IMAGES_WITH_CLUSTERING()
+# RUN_DISPLAY_CLUSTERED_IMAGES_MATRIX()
+
+RUN_LABEL_ONE_KNN()
