@@ -90,6 +90,26 @@ def make_conf_matrix(t_ref, t_pred):
     cm = confusion_matrix(t_ref, t_pred)
     return cm
 
+def plot_conf_matrix(cm, error):
+    plt.imshow(cm, cmap=plt.cm.Blues)
+    plt.title(f'Confusion Matrix with error rate: {round(error,2)}%')
+    plt.colorbar()
+    tick_marks = np.arange(3)
+    plt.xticks(tick_marks, ['Iris-setosa', 'Iris-versicolor', 'Iris-verginica'], rotation=45)
+    plt.yticks(tick_marks, ['Iris-setosa', 'Iris-versicolor', 'Iris-verginica'])
+    # add text annotations
+    thresh = cm.max() / 2.
+    for i in range(cm.shape[0]):
+        for j in range(cm.shape[1]):
+            plt.text(j, i, cm[i, j],
+                    horizontalalignment="center",
+                    color="white" if cm[i, j] > thresh else "black")
+
+    plt.tight_layout()
+    plt.ylabel('True label')
+    plt.xlabel('Predicted label')
+    plt.show()
+
 def find_error(conf_matrix, N, C):
     error = 0
     for i in range(len(conf_matrix)):
@@ -111,7 +131,7 @@ def main():
     pred = predict(W,x_test)
     conf_matrix = make_conf_matrix(t_ref, pred)
     error = round(find_error(conf_matrix, 150-N, C)*100,2)
-    
+    plot_conf_matrix(conf_matrix, error)
     # print(x[0:50])
     print(conf_matrix)
     print(f'Error rate: {error} %')
