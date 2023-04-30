@@ -298,15 +298,15 @@ def RUN_LABEL_MULTIPLE_IMAGES_NN():
 
 
 # PRINTING CONFUSION MATRIX OG ERROR RATE USING KNN WITH ALL TESTING DATA
-def RUN_LABEL_MULTIPLE_IMAGES_KNN(): # NOW: not clustered
+def RUN_LABEL_MULTIPLE_IMAGES_KNN(): # NOW: clustered
     Number_of_tests = 1000
     N_train = 20000
     N_test_images = 1000
     k = 7
-    # train_images = int_cluster(np.load('MNIST/clustered_templates.npy')  )          # clustered
-    # train_labels = np.load('MNIST/clustered_labels.npy')              # clustered
-    train_images = load_mnist(N_train, 'MNIST/train_images.bin')
-    train_labels = load_mnist_labels(N_train, 'MNIST/train_labels.bin')
+    train_images = np.load('MNIST/clustered_templates.npy')          # clustered
+    train_labels = np.load('MNIST/clustered_labels.npy')              # clustered
+    # train_images = load_mnist(N_train, 'MNIST/train_images.bin')
+    # train_labels = load_mnist_labels(N_train, 'MNIST/train_labels.bin')
     test_images = load_mnist(1000, 'MNIST/test_images.bin')
     test_labels = load_mnist_labels(1000, 'MNIST/test_labels.bin')
     
@@ -327,7 +327,6 @@ def RUN_LABEL_MULTIPLE_IMAGES_KNN(): # NOW: not clustered
     print(error)
     finish_time_KNN=time.time()
     print('Time knn: ', finish_time_KNN-start_time_KNN)
-    display_img(test_images[839])
     plot_conf_matrix(cm, error)
 
     
@@ -385,10 +384,7 @@ def RUN_LABEL_MULTIPLE_IMAGES_WITH_CLUSTERING():
     
     
 def main():
-
-    RUN_LABEL_MULTIPLE_IMAGES_NN()
-
-    # RUN_LABEL_ONE_KNN()
+    RUN_LABEL_MULTIPLE_IMAGES_KNN()
 
 
 main()
