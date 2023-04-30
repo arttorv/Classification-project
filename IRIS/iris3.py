@@ -119,6 +119,27 @@ def find_error(conf_matrix, N, C):
                 error += conf_matrix[i][j]/N
     return error
 
+def plot_feature(i):
+    x = get_x()
+    bins_count=30
+    intervals = [(3,9), (2,5), (0.3,8),(0,3)]
+    counts_0, bins0 = np.histogram(x[0:50,i], bins=bins_count, range=intervals[i])
+    counts_1, bins1 = np.histogram(x[50:100,i], bins=bins_count, range=intervals[i])
+    counts_2, bins2 = np.histogram(x[100:150,i], bins=bins_count, range=intervals[i])
+
+    plt.stairs(counts_0, bins0, alpha=0.3, fill=True, label='Iris-setosa', linewidth=2, edgecolor='blue')
+    plt.stairs(counts_1, bins1, alpha=0.4, fill=True, label='Iris-versicolor', linewidth=2, edgecolor='orange')
+    plt.stairs(counts_2, bins2, alpha=0.3,  fill=True, label='Iris-virginica', linewidth=2, edgecolor='green')
+    plt.legend()
+    name = 'Width of petal leave'
+    plt.xlabel(name+' [cm]')
+    plt.ylabel('Samples per bin')
+    plt.title(name)
+
+# --------------------------------- #
+#         RUN FUNCTIONS
+# --------------------------------- #
+
 def RUN_TRAIN_30FIRST():
     N = 90
     C = 3
@@ -162,6 +183,4 @@ def RUN_TRAIN_30LAST():
 
 RUN_TRAIN_30FIRST()
 
-def plot_features(x, w):
-    plt.stem(x,w)
     
