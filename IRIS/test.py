@@ -19,16 +19,4 @@ def main():
     AllMSETrain = [[0]*Niterations for i in range(len(alpha))]  #array of all mean sqare errors
     AllMSETest =  [[0]*Niterations for i in range(len(alpha))]  #array of all mean sqare errors
 
-    for i in range(Niterations): 
-
-                zTrain, gTrain, MSETrain, GradMSETrain = findMSE(xTrain,tTrain, NtrainAll, C, W)
-
-                W = W - alpha[j]*GradMSETrain
-                
-                AllMSETrain[j][i] = MSETrain
-
-                zTest, gTest, MSETest, GradMSETest = findMSE(xTest, tTest, NtestAll, C, W)
-
-                AllMSETest[j][i] = MSETest
-
-    return
+ 
