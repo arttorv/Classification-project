@@ -156,7 +156,7 @@ def RUN_TRAIN_30FIRST():
     error = round(find_error(conf_matrix, N, C)*100,2)
     plot_conf_matrix(conf_matrix, error)
     # print(x[0:50])
-    print(W)
+    print(f'W: {W}')
     print(conf_matrix)
     print(f'Error rate: {error} %')
 
@@ -172,7 +172,7 @@ def RUN_TRAIN_30LAST():
     t_ref_test = make_ref_t(t_test)
     t_ref_train = make_ref_t(t_train)
     W, mse = train(x_train,t_train,0.01,2000)
-    print(W)
+    print(f'W: {W}')
     pred = predict(W,x_train)
     conf_matrix = make_conf_matrix(t_ref_train, pred)
     error = round(find_error(conf_matrix, N, C)*100,2)
