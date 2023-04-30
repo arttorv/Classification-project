@@ -20,7 +20,7 @@ def arrange_order(x,t):
 
 def get_x():
     f = open('IRIS/iris.data')
-    x = np.loadtxt(f,delimiter=',',usecols=(0, 1, 2, 3))
+    x = np.loadtxt(f,delimiter=',',usecols=(2,3))
     f.close()
     x_new = np.ones([np.size(x,0),np.size(x,1)+1])
     x_new[:,:-1] = x
@@ -92,8 +92,9 @@ def make_conf_matrix(t_ref, t_pred):
 
 def plot_conf_matrix(cm, error):
     plt.imshow(cm, cmap=plt.cm.Blues)
-    plt.title(f'Confusion Matrix - Training set\n alpha = {0.01}, Iterations = {2000} \nError rate: {round(error,2)}%')
-    plt.colorbar()
+    plt.title(f'Confusion Matrix - Test set \n D = 1, Error rate: {round(error,2)}%')
+    # Training set\n alpha = {0.01}, Iterations = {2000}
+    # plt.colorbar()
     tick_marks = np.arange(3)
     plt.xticks(tick_marks, ['Iris-setosa', 'Iris-versicolor', 'Iris-verginica'], rotation=45)
     plt.yticks(tick_marks, ['Iris-setosa', 'Iris-versicolor', 'Iris-verginica'])
@@ -118,14 +119,35 @@ def find_error(conf_matrix, N, C):
                 error += conf_matrix[i][j]/N
     return error
 
-def main():
+def RUN_TRAIN_30FIRST():
     N = 90
     C = 3
     x, t = get_data()
+    x = np.delete(x, 0, axis=1)   
     x_train = x[:N]
     t_train = t[:N]
     x_test = x[N:]
     t_test = t[N:]
+    t_ref_test = make_ref_t(t_test)
+    t_ref_train = make_ref_t(t_train)
+    W, mse = train(x_train,t_train,0.01,2000)
+    pred = predict(W,x_test)
+    conf_matrix = make_conf_matrix(t_ref_test, pred)
+    error = round(find_error(conf_matrix, N, C)*100,2)
+    plot_conf_matrix(conf_matrix, error)
+    # print(x[0:50])
+    print(W)
+    print(conf_matrix)
+    print(f'Error rate: {error} %')
+
+def RUN_TRAIN_30LAST():
+    N = 90
+    C = 3
+    x, t = get_data()
+    x_train = x[150-N:]
+    t_train = t[150-N:]
+    x_test = x[:150-N]
+    t_test = t[:150-N]
     t_ref_test = make_ref_t(t_test)
     t_ref_train = make_ref_t(t_train)
     W, mse = train(x_train,t_train,0.01,2000)
@@ -138,8 +160,7 @@ def main():
     print(conf_matrix)
     print(f'Error rate: {error} %')
 
-main()
-
+RUN_TRAIN_30FIRST()
 
 def plot_features(x, w):
     plt.stem(x,w)

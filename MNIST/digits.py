@@ -127,11 +127,8 @@ def data_for_clustering(train_images, train_labels):
 
 def cluster_class(class_images):
     kmeans = KMeans(n_clusters=64)#, random_state=0)
-
     kmeans.fit(class_images)
-    
     clustered_centers = kmeans.cluster_centers_
-    
     return clustered_centers
 
 
