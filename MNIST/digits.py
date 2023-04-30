@@ -86,11 +86,12 @@ def display_clustered_digit(digit_to_display):
 #        EUCLIDIAN FUNCTIONS
 # --------------------------------- #
 
-def euclidian_matrix(x, y):
+
+def euclidian_matrix(x, y): #matrix definition of euclidean distance
     distance = (x - y).T*(x - y)
     return distance
 
-def true_distance(dist_matrix):
+def true_distance(dist_matrix): #finds euclidean distance to NN
     sum = 0
     for i in range(len(dist_matrix)):
         for j in range(len(dist_matrix[i])):
@@ -116,47 +117,42 @@ def find_error(conf_matrix, N, C):
                 error += conf_matrix[i][j]/N
     return error
 
-# RETURNS THE PREDICTED LABEL AND THE PICTURE THAT LOOKS MOST LIKE THE TEST
+# INITIAL FUNCTION FOR NN USING DEFINITION OF EUCLIDEAN DIST
 def nearest_neighbor(test_img, ref_images, ref_label):
     label_vec = np.zeros(len(ref_label))
     # print('labelveclen',len(label_vec))
     for i in range(len(ref_images)):
-        dist_matrix = euclidian_matrix(test_img,ref_images[i])
-        dist = true_distance(dist_matrix)
+        dist_matrix = euclidian_matrix(test_img,ref_images[i]) # finding distance for features of the test_img and training data
+        dist = true_distance(dist_matrix) # finding euclidean distance between features of the test_img and training data
         label_vec[i]= dist
     label = ref_label[np.argmin(label_vec)]
     return label, ref_images[np.argmin(label_vec)], label_vec
 
-
+# RETURNS THE PREDICTED LABEL AND ITS NN
 def nearest_neighbor_scipy(test_img, ref_images, ref_label):
     n_train_images = len(ref_images)
     label_vec = np.zeros(len(ref_label))
     test_img = test_img.reshape(784)
     ref_images = np.array(ref_images).reshape(n_train_images,784)
     for i in range(n_train_images):
-        dist = distance.euclidean(test_img,ref_images[i])
+        dist = distance.euclidean(test_img,ref_images[i]) #returns euclidean distance between features of the test_img and training data
         label_vec[i]= dist
-    label = ref_label[np.argmin(label_vec)]
+    label = ref_label[np.argmin(label_vec)] #finds label of NN
     return label, ref_images[np.argmin(label_vec)], label_vec
 
 def k_nearest_neighbor(test_img, train_images, train_label, k):
     k_nearest = []
     # label, ref_image, dist_vec = nearest_neighbor(test_img, train_images, train_label)
     label, ref_image, dist_vec = nearest_neighbor_scipy(test_img, train_images, train_label)
-    # display_img(test_img)
-    # print(test_img)
     for i in range(k):
-        min_index = np.argmin(dist_vec)
-        k_nearest.append(train_label[min_index])
-        dist_vec[min_index] = 1000000000
-        # display_img(train_images[min_index])
-        # print(train_images[min_index])
+        min_index = np.argmin(dist_vec) #index of NN
+        k_nearest.append(train_label[min_index]) #adds label of NN to list of KNN
+        dist_vec[min_index] = 1000000000  #makes NN not NN anymore
     print(k_nearest)
     pred_label = most_common(k_nearest)
     return pred_label
 
-         
-# DENNE FUNSKJONEN ER LITT DUST MEN FUNKER
+
 def label_one(train_images, train_labels, test_image, test_label):
     pred_label, pred_image, dummy_vec = nearest_neighbor(test_image, train_images, train_labels)
     return pred_label
@@ -181,12 +177,8 @@ def data_for_clustering(train_images, train_labels):
         count=int(class_count[label])
         sorted_images_in_rows[label][count]=temp_image_row
         class_count[label]=class_count[label]+1
-        
-    print('CLASS COUNT: ', class_count)
-    # print('first sort',np.shape(sorted_images_in_rows))
     
     return sorted_images_in_rows
-        
 
 def cluster_class(class_images):
     kmeans = KMeans(n_clusters=64)#, random_state=0)
@@ -221,11 +213,6 @@ def get_new_clustered_labels(N_cluster,n_digits):
     print(train_labels_clustered_list)
     np.save('MNIST/clustered_labels.npy', train_labels_clustered_list)
     return train_labels_clustered_list
-
-def int_cluster(clusterimgs):
-    for i in range(640):
-        clusterimgs[i]=np.asarray(clusterimgs[i], dtype = 'int')
-    return clusterimgs
 
 # --------------------------------- #
 #          RUN FUNCTIONS
@@ -323,11 +310,6 @@ def RUN_LABEL_MULTIPLE_IMAGES_KNN(): # NOW: not clustered
     test_images = load_mnist(1000, 'MNIST/test_images.bin')
     test_labels = load_mnist_labels(1000, 'MNIST/test_labels.bin')
     
-    # print(train_images)
-    # train_images = np.load('MNIST/clustered_templates.npy')
-    # train_images = int_cluster(train_images)
-    # print('len train', len(train_images))
-    # train_labels = np.load('MNIST/clustered_labels.npy')
     pred_list = []
     test_list = []
     start_time_KNN=time.time()
