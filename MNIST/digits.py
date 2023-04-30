@@ -78,7 +78,8 @@ def nearest_neighbor(test_img, ref_images, ref_label):
     label_vec = np.zeros(len(ref_label))
     # print('labelveclen',len(label_vec))
     for i in range(len(ref_images)):
-        dist_matrix = euclidian_matrix(test_img,ref_images[i])
+        # dist_matrix = euclidian_matrix(test_img,ref_images[i])
+        dist:matrix = distance.euclidean()
         dist = true_distance(dist_matrix)
         label_vec[i]= dist
     label = ref_label[np.argmin(label_vec)]
