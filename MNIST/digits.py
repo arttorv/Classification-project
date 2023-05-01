@@ -34,11 +34,14 @@ def load_mnist_labels(num_labels, filename):
 def import_custom_BMP(filename):
     bmp_image = Image.open(filename)
     # Convert the PIL image to a NumPy array
-    np_array = np.array(bmp_image)
-    # Print the shape of the NumPy array
-    print(np_array.shape)
-    display_img(np.array)
-
+    np_array = np.asarray(bmp_image)
+    # ar3=np.full((28,28),255)
+    # print('ar3: ',ar3)
+    # ar2=np.add(ar3,np_array*(-1))
+    # print('ar2',ar2)
+    ar2=255-np_array
+    # display_img(ar2)
+    return ar2
 
 # --------------------------------- #
 #       DISPLAY FUNCTIONS
@@ -383,8 +386,22 @@ def RUN_LABEL_MULTIPLE_IMAGES_WITH_CLUSTERING():
     print(error)
     
     
+def RUN_CUSTOM_IMPORT_NN(filename):
+    N_train = 2000
+    train_images = np.load('MNIST/clustered_templates.npy')
+    train_labels = np.load('MNIST/clustered_labels.npy')
+    test_image = import_custom_BMP(filename)
+    pred_label, pred_image, dummy_vec = nearest_neighbor(test_image, train_images, train_labels)
+    print(f'predicted: {pred_label}')
+    
+    fig, axs = plt.subplots(1,2)
+    axs[0].imshow(test_image, cmap='inferno')
+    axs[0].set_title('YOUR WRITING')
+    axs[1].imshow(pred_image, cmap='inferno')
+    axs[1].set_title('MACHINE PREDICTION = '+str(pred_label))
+    plt.show()
+    
 def main():
     RUN_LABEL_MULTIPLE_IMAGES_KNN()
-
-
+    RUN_CUSTOM_IMPORT_NN('MNIST/2.bmp')
 main()
